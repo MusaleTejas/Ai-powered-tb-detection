@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+.env
+chat-backend/.env
+
+# Node
+node_modules/
+dist/
+.vite/
+.npm/
+
+# Specific Logs and temp files
+*.log
+backend/test_log.txt
+backend/test_log2.txt
+backend/pip_report.txt
+backend/find_py*.txt
+backend/node_py_report.txt
+backend/py_out.txt
+backend/test_git.py
+git_*.txt
+large_files.txt
+
+# Images / temp generated
+backend/temp_*.jpg
+backend/static/reports/
+backend/static/uploads/
+backend/static/heatmaps/
+
+# Large Model weights
+*.safetensors
+*.bin
+*.msgpack
+*.h5
+*.pt
+
+# IDEs
+.vscode/
+.idea/
+.gemini/
