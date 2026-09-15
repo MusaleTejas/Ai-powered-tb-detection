@@ -18,6 +18,24 @@ interface ResultsSectionProps {
   onNewAnalysis: () => void;
 }
 
+const sanitizeReportText = (text: string): string => {
+  if (!text) return '';
+  let clean = text;
+  // Remove HTML tags
+  clean = clean.replace(/<br\s*[\/]?>/gi, '\n');
+  clean = clean.replace(/<\/?(div|span|p|b|i|strong|em|table|tr|td|th|tbody|thead)[^>]*>/gi, '');
+  // Remove emojis
+  clean = clean.replace(/[\u{1F300}-\u{1FAFF}]|[\u{2600}-\u{27BF}]|[\u{1F1E6}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F900}-\u{1F9FF}]|[\u{200D}\u{FE0F}]/gu, '');
+  // Clean redundant markers
+  clean = clean.replace(/\{[^}]*\}/g, '');
+  clean = clean.replace(/\[[^\]]*\]/g, '');
+  clean = clean.replace(/(instruction:|input:).*/gi, '');
+  // Replace internal classifier jargon if present
+  clean = clean.replace(/\bmalignant\b/gi, 'Tuberculosis Detected');
+  clean = clean.replace(/\bbenign\b/gi, 'Normal / Benign Finding');
+  return clean.trim();
+};
+
 const generateDefaultClinicalReport = (
   isTBPositive: boolean,
   formattedConfidence: string,
@@ -46,10 +64,10 @@ const generateDefaultClinicalReport = (
 
 ### 4. Patient Guidance: What to Do & What NOT to Do (Dos & Don'ts)
 
-| Category | ✅ WHAT TO DO (Essential Actions) | ❌ WHAT NOT TO DO (Avoid) |
+| Category | WHAT TO DO (Essential Actions) | WHAT NOT TO DO (Avoid) |
 |:---|:---|:---|
-| **Daily Health & Wellness** | • Eat a balanced diet with protein, fresh fruits, vegetables, and clean water.<br>• Maintain adequate rest and regular physical exercise.<br>• Wash hands thoroughly after visiting crowded public places. | • **Do NOT ignore a persistent cough** lasting more than 2–3 weeks.<br>• Do NOT smoke cigarettes, bidi, or use tobacco/vaping devices.<br>• Avoid poorly ventilated, overcrowded environments when unwell. |
-| **Symptom Awareness** | • Seek medical consultation if you develop night sweats, unexplained weight loss, or hemoptysis.<br>• Keep your vaccination records (such as BCG) updated. | • Do NOT self-medicate with over-the-counter antibiotics or cough syrups for prolonged symptoms.<br>• Do NOT delay medical checkups if exposed to active TB contacts. |
+| Daily Health & Wellness | • Eat a balanced diet with protein, fresh fruits, vegetables, and clean water. • Maintain adequate rest and regular physical exercise. • Wash hands thoroughly after visiting crowded public places. | • Do NOT ignore a persistent cough lasting more than 2–3 weeks. • Do NOT smoke cigarettes, bidi, or use tobacco/vaping devices. • Avoid poorly ventilated, overcrowded environments when unwell. |
+| Symptom Awareness | • Seek medical consultation if you develop night sweats, unexplained weight loss, or hemoptysis. • Keep your vaccination records (such as BCG) updated. | • Do NOT self-medicate with over-the-counter antibiotics or cough syrups for prolonged symptoms. • Do NOT delay medical checkups if exposed to active TB contacts. |
 
 ### 5. Critical Emergency Warning Signs
 If you experience any of the following, seek prompt medical attention:
@@ -83,21 +101,21 @@ To confirm the diagnosis and initiate curative treatment, please complete the fo
 
 ### 4. Patient Guidance: What to Do & What NOT to Do (Dos & Don'ts)
 
-| Category | ✅ WHAT TO DO (Essential Actions) | ❌ WHAT NOT TO DO (Avoid at All Costs) |
+| Category | WHAT TO DO (Essential Actions) | WHAT NOT TO DO (Avoid at All Costs) |
 |:---|:---|:---|
-| **Medication & Adherence** | • Take every prescribed tablet every single day at the exact time advised.<br>• Complete the entire 6-month course without missing a single dose.<br>• Report any nausea, skin itching, or vision changes to your DOTS provider. | • **NEVER stop medicines early**, even if you feel completely healthy after 2–3 weeks.<br>• Do NOT skip or alter pill doses without doctor authorization.<br>• Do NOT take random over-the-counter cough syrups or steroids. |
-| **Infection Control & Hygiene** | • Cover mouth and nose with a tissue or wear an N95/surgical mask when coughing.<br>• Discard used tissues in a covered trash bin or disinfectant solution.<br>• Keep your bedroom windows open for continuous fresh air and sunlight. | • **DO NOT spit openly** on floors, streets, or public areas.<br>• Do NOT sleep in closed, unventilated air-conditioned rooms with family during the first 2-3 weeks.<br>• Do NOT travel on crowded public transit during active phase. |
-| **Diet & Nutrition** | • Eat a high-protein, calorie-dense diet: eggs, lentils/pulses, milk, paneer, nuts, fresh fruits, and green vegetables.<br>• Drink 2–3 liters of clean drinking water daily.<br>• Take prescribed Vitamin B6 (Pyridoxine) alongside treatment. | • **DO NOT consume alcohol** under any circumstances (causes severe liver damage with TB drugs).<br>• Do NOT smoke cigarettes, bidi, or use tobacco/vaping products.<br>• Avoid junk, stale, or ultra-processed oily foods. |
-| **Family & Home Safety** | • Bring all immediate household members for **free contact screening** at the DOTS clinic.<br>• Ensure children under 5 receive pediatric evaluation and preventive therapy.<br>• Wash hands frequently with soap and water. | • Do NOT share unwashed eating utensils, glasses, or towels while infectious.<br>• Do NOT let young infants sleep in close contact until sputum turns negative.<br>• Do NOT hide diagnosis from close contacts who may need screening. |
+| Medication & Adherence | • Take every prescribed tablet every single day at the exact time advised. • Complete the entire 6-month course without missing a single dose. • Report any nausea, skin itching, or vision changes to your DOTS provider. | • NEVER stop medicines early, even if you feel completely healthy after 2–3 weeks. • Do NOT skip or alter pill doses without doctor authorization. • Do NOT take random over-the-counter cough syrups or steroids. |
+| Infection Control & Hygiene | • Cover mouth and nose with a tissue or wear an N95/surgical mask when coughing. • Discard used tissues in a covered trash bin or disinfectant solution. • Keep your bedroom windows open for continuous fresh air and sunlight. | • DO NOT spit openly on floors, streets, or public areas. • Do NOT sleep in closed, unventilated air-conditioned rooms with family during the first 2-3 weeks. • Do NOT travel on crowded public transit during active phase. |
+| Diet & Nutrition | • Eat a high-protein, calorie-dense diet: eggs, lentils/pulses, milk, paneer, nuts, fresh fruits, and green vegetables. • Drink 2–3 liters of clean drinking water daily. • Take prescribed Vitamin B6 (Pyridoxine) alongside treatment. | • DO NOT consume alcohol under any circumstances (causes severe liver damage with TB drugs). • Do NOT smoke cigarettes, bidi, or use tobacco/vaping products. • Avoid junk, stale, or ultra-processed oily foods. |
+| Family & Home Safety | • Bring all immediate household members for free contact screening at the DOTS clinic. • Ensure children under 5 receive pediatric evaluation and preventive therapy. • Wash hands frequently with soap and water. | • Do NOT share unwashed eating utensils, glasses, or towels while infectious. • Do NOT let young infants sleep in close contact until sputum turns negative. • Do NOT hide diagnosis from close contacts who may need screening. |
 
-### 5. Government DOTS Program (100% Free Treatment)
+### 5. Government DOTS Program Guide (100% Free Treatment)
 
 | Step | What happens | Why it matters |
 |:---|:---|:---|
-| **1. Free Screening & Confirmation** | Visit a government hospital/DOTS center for free CB-NAAT and sputum microscopy. | Confirms active *M. tuberculosis* and ensures right medication from day one. |
-| **2. Free 6-Month Medication** | Intensive 2-month 4-drug therapy (2HRZE) + 4-month continuation (4HRE) provided **100% free of cost**. | Cures >95% of cases when taken consistently to completion. |
-| **3. Directly Observed Therapy (DOT)** | Healthcare supervisor or community health worker assists with daily dose tracking. | Ensures zero missed doses, preventing dangerous drug-resistant strains (MDR-TB). |
-| **4. Nutrition Support (Nikshay)** | Direct benefit transfer of **₹500/month (Nikshay Poshan Yojana)** into your bank account. | Provides financial assistance for protein-rich food throughout your recovery. |
+| 1. Free Screening & Confirmation | Visit a government hospital/DOTS center for free CB-NAAT and sputum microscopy. | Confirms active *M. tuberculosis* and ensures right medication from day one. |
+| 2. Free 6-Month Medication | Intensive 2-month 4-drug therapy (2HRZE) + 4-month continuation (4HRE) provided 100% free of cost. | Cures >95% of cases when taken consistently to completion. |
+| 3. Directly Observed Therapy (DOT) | Healthcare supervisor or community health worker assists with daily dose tracking. | Ensures zero missed doses, preventing dangerous drug-resistant strains (MDR-TB). |
+| 4. Nutrition Support (Nikshay) | Direct benefit transfer of 500 rupees per month (Nikshay Poshan Yojana) into your bank account. | Provides financial assistance for protein-rich food throughout your recovery. |
 
 ### 6. Critical Emergency Warning Signs
 Seek immediate emergency medical care (Call 108 or go to nearest emergency hospital) if you notice:
@@ -175,7 +193,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       reportControllerRef.current = controller;
 
       setReportLoading(true);
-      const instruction = 'Generate a detailed medical analysis report for a Pulmonary Tuberculosis detection case based on CDC and The Radiology Assistant criteria.';
+      const instruction = 'Generate a detailed medical analysis report for a Pulmonary Tuberculosis detection case based on CDC and The Radiology Assistant criteria. Do not use HTML tags or emojis.';
 
       const inputStruct = {
         multiclass_label: isTBPositive ? 'Tuberculosis Detected' : 'Normal / Clear Chest Radiograph',
@@ -193,19 +211,13 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       const data = resp.data;
 
       if (typeof data === 'string' && data.length > 50) {
-        setReportText(data);
+        setReportText(sanitizeReportText(data));
         setIsAiEnhanced(true);
         return;
       }
 
       if (data?.report) {
-        let cleanReport = data.report;
-        cleanReport = cleanReport.replace(/\{[^}]*\}/g, '');
-        cleanReport = cleanReport.replace(/\[[^\]]*\]/g, '');
-        cleanReport = cleanReport.replace(/(instruction:|input:).*/gi, '');
-        cleanReport = cleanReport.trim();
-
-        setReportText(cleanReport);
+        setReportText(sanitizeReportText(data.report));
         setIsAiEnhanced(true);
       }
     } catch (error) {
@@ -263,7 +275,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             </h2>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
               <span style={{ fontSize: '22px', fontWeight: 800, color: isTBPositive ? '#dc2626' : '#059669' }}>
-                {results.prediction || results.multiclass || (isTBPositive ? 'Tuberculosis Detected' : 'Normal / Clear Scan')}
+                {isTBPositive ? 'Tuberculosis Detected' : 'Normal / Clear Chest Radiograph'}
               </span>
               <span style={{ fontSize: '14px', color: '#475569', fontWeight: 700 }}>
                 Confidence: {formattedConfidence}
@@ -274,11 +286,11 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
           {/* Images Row */}
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 600, fontSize: '12px', color: '#334155' }}>📷 Original Radiograph</div>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 600, fontSize: '12px', color: '#334155' }}>Original Radiograph</div>
               {originalImage && <img src={originalImage} style={{ width: '100%', height: '170px', objectFit: 'contain', display: 'block', background: '#000' }} />}
             </div>
             <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 600, fontSize: '12px', color: '#334155' }}>🔬 AI Segmentation Overlay</div>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 600, fontSize: '12px', color: '#334155' }}>AI Segmentation Overlay</div>
               {results.segmentation_overlay ? (
                 <img src={results.segmentation_overlay} style={{ width: '100%', height: '170px', objectFit: 'contain', display: 'block', background: '#000' }} />
               ) : (
@@ -286,7 +298,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               )}
             </div>
             <div style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 600, fontSize: '12px', color: '#334155' }}>🌡️ Grad-CAM Attention Heatmap</div>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', fontWeight: 600, fontSize: '12px', color: '#334155' }}>Grad-CAM Attention Heatmap</div>
               {(results.gradcam_overlay || results.heatmap_data || results.heatmap_url) ? (
                 <img src={results.gradcam_overlay || results.heatmap_data || `${API_BASE_URL}${results.heatmap_url}`} style={{ width: '100%', height: '170px', objectFit: 'contain', display: 'block', background: '#000' }} />
               ) : (
@@ -345,7 +357,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
           {/* Footer Disclaimer */}
           <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '10px', textAlign: 'center' }}>
             <p style={{ fontSize: '10px', color: '#94a3b8', margin: 0 }}>
-              ⚠️ Confidential Medical AI Screening Report. This software is an assistive tool and does not constitute a final medical diagnosis. Always consult a licensed healthcare practitioner.
+              Confidential Medical AI Screening Report. This software is an assistive tool and does not constitute a final medical diagnosis. Always consult a licensed healthcare practitioner.
             </p>
           </div>
         </div>
