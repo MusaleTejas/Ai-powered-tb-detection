@@ -2,7 +2,7 @@ import sys
 import os
 
 # Add backend directory to sys.path to allow imports like "from models.xray_checker..."
-backend_dir = r"c:\Users\sp711\Downloads\TB care\backend"
+backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_dir)
 os.chdir(backend_dir)
 
