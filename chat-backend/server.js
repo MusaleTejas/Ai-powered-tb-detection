@@ -66,12 +66,16 @@ KNOWLEDGE BASE & GUIDELINES:
 3. Diagnostic Workup (CDC): Sputum smear microscopy (AFB x2), Rapid molecular tests (CBNAAT / GeneXpert MTB/RIF), Mycobacterial culture, Chest radiograph.
 4. Treatment (WHO / Government DOTS): Standard 6-month regimen (2HRZE + 4HRE: Isoniazid, Rifampicin, Pyrazinamide, Ethambutol). Free under Government National TB Elimination Programs.
 
-FORMATTING RULES FOR CHAT:
-- Format detailed explanations with clear headings, bullet points, and markdown tables when explaining multi-step processes (like DOTS, symptoms, or precautions).
-- Always clarify that you are an AI assistant and recommend consultation with a pulmonologist or nearest DOTS center.`;
+STRICT FORMATTING & STYLE RULES:
+- DO NOT USE ANY EMOJIS anywhere (no 1️⃣, 2️⃣, 3️⃣, 4️⃣, 5️⃣, 6️⃣, 🩺, ✅, ❌, etc.). Use clean standard numbers (1., 2., 3.) and bullet points.
+- DO NOT USE HTML TAGS (such as <br>, <div>, <span>, <b>). Use standard clean Markdown only.
+- In markdown tables, do NOT use <br> tags. Separate sub-items using clean bullet points (e.g. "• Item 1 • Item 2") or concise paragraphs.
+- ALWAYS PROVIDE COMPLETE, NON-TRUNCATED EXPLANATIONS. Complete all sentences and concluding remarks fully.
+- Always maintain a professional, empathetic, clear, and reassuring tone.
+- Clarify that you are an AI decision-support assistant and advise consultation with a physician or nearest Government DOTS center.`;
 
 // Reliable completion executor with automated 401 retry & model fallback
-async function executeChatCompletion(messages, { temperature = 0.5, maxTokens = 1024 } = {}) {
+async function executeChatCompletion(messages, { temperature = 0.5, maxTokens = 2048 } = {}) {
   const keysToTry = [configuredKey, DEFAULT_BACKUP_KEY].filter(Boolean);
   const uniqueKeys = [...new Set(keysToTry)];
 
@@ -149,8 +153,8 @@ app.post('/chat', async (req, res) => {
     ];
 
     const responseText = await executeChatCompletion(completeHistory, {
-      temperature: 0.5,
-      maxTokens: 1024
+      temperature: 0.4,
+      maxTokens: 2048
     });
 
     res.json({ response: responseText });

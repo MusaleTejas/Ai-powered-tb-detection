@@ -15,11 +15,26 @@ interface Message {
   content: string;
 }
 
+const sanitizeChatMessage = (text: string): string => {
+  if (!text) return '';
+  let clean = text;
+  // Replace <br> tags with clean line breaks / bullets
+  clean = clean.replace(/<br\s*[\/]?>/gi, '\n');
+  // Strip any remaining HTML tags
+  clean = clean.replace(/<\/?(div|span|p|b|i|strong|em|table|tr|td|th|tbody|thead)[^>]*>/gi, '');
+  // Strip emojis
+  clean = clean.replace(/[\u{1F300}-\u{1FAFF}]|[\u{2600}-\u{27BF}]|[\u{1F1E6}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F900}-\u{1F9FF}]|[\u{200D}\u{FE0F}]/gu, '');
+  // Clean classifier keywords
+  clean = clean.replace(/\bmalignant\b/gi, 'Tuberculosis Detected');
+  clean = clean.replace(/\bbenign\b/gi, 'Normal / Benign Finding');
+  return clean.trim();
+};
+
 const ChatBot: React.FC<ChatBotProps> = ({ predictionContext }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI health assistant. I've reviewed your chest X-ray screening results and I'm here to help you understand them. Feel free to ask me anything about your report, what symptoms to watch for, how free DOTS treatment works, or tips for protecting your family."
+      content: "Hello! I am your AI clinical health assistant. I have reviewed your chest radiograph screening results and I am here to help you understand them. Feel free to ask me anything about your report, symptoms, free government DOTS treatment, or family safety guidelines."
     }
   ]);
   const [input, setInput] = useState('');
@@ -70,11 +85,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ predictionContext }) => {
         messages: newMessages,
         context: context
       }, {
-        timeout: 60000
+        timeout: 90000
       });
 
       if (resp.data && resp.data.response) {
-        setMessages([...newMessages, { role: 'assistant', content: resp.data.response }]);
+        setMessages([...newMessages, { role: 'assistant', content: sanitizeChatMessage(resp.data.response) }]);
       } else {
         throw new Error(resp.data.error || 'Failed to get response');
       }
