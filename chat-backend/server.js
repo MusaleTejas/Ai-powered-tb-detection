@@ -25,14 +25,26 @@ const apiLimiter = rateLimit({
 
 app.use(apiLimiter);
 
-// Initialize Groq API key (from environment variable or fallback)
+// Initialize Groq API key with auto-fallback & validation
 const DEFAULT_KEY_PARTS = ['gsk_', 'ESQXRq6FLEMmrZUqYt', 'KmWGdyb3FYNN9e6vyfauhmpJBoeWikEH4G'];
-const GROQ_API_KEY = process.env.GROQ_API_KEY || DEFAULT_KEY_PARTS.join('');
+const DEFAULT_BACKUP_KEY = DEFAULT_KEY_PARTS.join('');
 
-const openai = new OpenAI({
-  apiKey: GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
+let configuredKey = (process.env.GROQ_API_KEY || '').trim();
+// Ignore placeholder or invalid keys from environment
+if (!configuredKey || configuredKey.includes('your_groq_api_key') || !configuredKey.startsWith('gsk_') || configuredKey.length < 25) {
+  configuredKey = DEFAULT_BACKUP_KEY;
+}
+
+const GROQ_API_KEY = configuredKey;
+
+const getOpenAIClient = (overrideKey) => {
+  return new OpenAI({
+    apiKey: overrideKey || GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
+};
+
+const openai = getOpenAIClient();
 
 // Candidate models for automated failover
 const CANDIDATE_MODELS = [
