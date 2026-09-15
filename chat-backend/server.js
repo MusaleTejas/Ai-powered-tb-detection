@@ -44,33 +44,51 @@ const getOpenAIClient = (overrideKey) => {
   });
 };
 
-const openai = getOpenAIClient();
+// Reliable completion executor with automated 401 retry & model fallback
+async function executeChatCompletion(messages, { temperature = 0.5, maxTokens = 1024 } = {}) {
+  const keysToTry = [configuredKey, DEFAULT_BACKUP_KEY].filter(Boolean);
+  const uniqueKeys = [...new Set(keysToTry)];
 
-// Candidate models for automated failover
-const CANDIDATE_MODELS = [
-  process.env.GROQ_MODEL,
-  'openai/gpt-oss-120b',
-  'openai/gpt-oss-20b',
-  'groq/compound',
-  'groq/compound-mini'
-].filter(Boolean);
+  let lastErr = null;
 
-// System instruction for chat
-const SYSTEM_PROMPT = `You are a specialized, compassionate medical AI clinical assistant for Pulmonary Tuberculosis (TB) and Chest Radiograph Evaluation, referencing clinical guidance from CDC (Centers for Disease Control and Prevention), WHO Stop TB Strategy, and The Radiology Assistant.
+  for (const key of uniqueKeys) {
+    const client = getOpenAIClient(key);
+    for (const modelName of CANDIDATE_MODELS) {
+      try {
+        const completion = await client.chat.completions.create({
+          model: modelName,
+          messages,
+          temperature,
+          max_tokens: maxTokens,
+        });
 
-KNOWLEDGE BASE & GUIDELINES:
-1. Imaging Findings (Radiology Assistant):
-   - Primary TB: Patchy consolidation, lymphadenopathy (hilar/mediastinal), pleural effusion, atelectasis.
-   - Post-Primary (Reactivation) TB: Apical and posterior segments of upper lobes, superior segment of lower lobes, cavitation (hallmark of active contagious TB), nodular infiltrates, "tree-in-bud" endobronchial spread.
-   - Miliary TB: 1-3 mm diffuse fine nodules evenly distributed throughout both lungs (hematogenous dissemination).
-   - Healed/Latent: Calcified granulomas (Ghon focus), calcified hilar nodes (Ranke complex), apical pleural capping.
-2. Clinical Presentation (CDC): Persistent cough (>2-3 weeks), hemoptysis (coughing up blood), fever (especially low-grade evening), night sweats, unexplained weight loss, fatigue, chest pain.
-3. Diagnostic Workup (CDC): Sputum smear microscopy (AFB x2), Rapid molecular tests (CBNAAT / GeneXpert MTB/RIF), Mycobacterial culture, Chest radiograph.
-4. Treatment (WHO / Government DOTS): Standard 6-month regimen (2HRZE + 4HRE: Isoniazid, Rifampicin, Pyrazinamide, Ethambutol). Free under Government National TB Elimination Programs.
+        const text = completion.choices[0]?.message?.content;
+        if (text) {
+          return text;
+        }
+      } catch (err) {
+        console.warn(`[Groq AI] Attempt with model ${modelName} failed:`, err?.status || err?.message);
+        lastErr = err;
+        // If unauthorized / 401, immediately break to try backup key
+        if (err?.status === 401 || (err?.message && err.message.toLowerCase().includes('invalid api key'))) {
+          break;
+        }
+      }
+    }
+  }
 
-FORMATTING RULES FOR CHAT:
-- Format detailed explanations with clear headings, bullet points, and markdown tables when explaining multi-step processes (like DOTS, symptoms, or precautions).
-- Always clarify that you are an AI assistant and recommend consultation with a pulmonologist or nearest DOTS center.`;
+  throw lastErr || new Error('Failed to generate response across all models.');
+}
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'groq-chat-backend',
+    models: CANDIDATE_MODELS,
+    timestamp: new Date().toISOString()
+  });
+});
 
 app.post('/chat', async (req, res) => {
   try {
@@ -104,34 +122,10 @@ app.post('/chat', async (req, res) => {
       ...history
     ];
 
-    let lastErr = null;
-    let responseText = null;
-
-    // Multi-model failover loop
-    for (const modelName of CANDIDATE_MODELS) {
-      try {
-        console.log(`[Chat] Attempting completion with model: ${modelName}`);
-        const completion = await openai.chat.completions.create({
-          model: modelName,
-          messages: completeHistory,
-          temperature: 0.5,
-          max_tokens: 1024,
-        });
-
-        responseText = completion.choices[0]?.message?.content;
-        if (responseText) {
-          console.log(`[Chat] Successfully generated response with model: ${modelName}`);
-          break;
-        }
-      } catch (modelErr) {
-        console.warn(`[Chat] Model ${modelName} failed:`, modelErr?.status || modelErr?.message);
-        lastErr = modelErr;
-      }
-    }
-
-    if (!responseText) {
-      throw lastErr || new Error('All model candidates failed to respond.');
-    }
+    const responseText = await executeChatCompletion(completeHistory, {
+      temperature: 0.5,
+      maxTokens: 1024
+    });
 
     res.json({ response: responseText });
   } catch (error) {
@@ -241,37 +235,13 @@ Anatomical Focus: Frontal Chest Radiograph (PA/AP view)`;
 
     promptContent += `\n\nREMINDER: You are analyzing a Frontal Chest Radiograph for Pulmonary Tuberculosis. Do NOT ask clarification questions. Generate the complete, professional, humanized 6-section clinical report now.`;
 
-    let lastErr = null;
-    let reportText = null;
-
-    // Multi-model failover loop for reports
-    for (const modelName of CANDIDATE_MODELS) {
-      try {
-        console.log(`[Report] Attempting synthesis with model: ${modelName}`);
-        const completion = await openai.chat.completions.create({
-          model: modelName,
-          messages: [
-            { role: 'system', content: REPORT_SYSTEM_PROMPT },
-            { role: 'user', content: promptContent }
-          ],
-          temperature: 0.3,
-          max_tokens: 1800,
-        });
-
-        reportText = completion.choices[0]?.message?.content;
-        if (reportText) {
-          console.log(`[Report] Successfully synthesized report with model: ${modelName}`);
-          break;
-        }
-      } catch (modelErr) {
-        console.warn(`[Report] Model ${modelName} failed:`, modelErr?.status || modelErr?.message);
-        lastErr = modelErr;
-      }
-    }
-
-    if (!reportText) {
-      throw lastErr || new Error('All model candidates failed to generate report.');
-    }
+    const reportText = await executeChatCompletion([
+      { role: 'system', content: REPORT_SYSTEM_PROMPT },
+      { role: 'user', content: promptContent }
+    ], {
+      temperature: 0.3,
+      maxTokens: 1800
+    });
 
     res.json({ report: reportText });
   } catch (error) {
