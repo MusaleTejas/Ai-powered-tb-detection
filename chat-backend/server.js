@@ -145,7 +145,7 @@ Provide a clear, prioritized checklist of next clinical steps:
 | **5. Support Services & Contact Tracing** | • Screening of immediate household members and financial nutritional support (Nikshay Poshan Yojana: ₹500/month direct benefit). | Breaks the community chain of transmission and safeguards family members. |
 
 ### 6. Critical Warning Signs: When to Seek Immediate Medical Attention
-If the patient experiences any of the following **emergency red flags**, contact emergency medical care (`108` or nearest emergency room) immediately:
+If the patient experiences any of the following **emergency red flags**, contact emergency medical care (108 or nearest emergency room) immediately:
 - **Hemoptysis**: Coughing up significant fresh blood (> 50 ml).
 - **Severe Dyspnea**: Sudden worsening shortness of breath or resting chest pain.
 - **Drug-Induced Hepatitis**: Yellowing of eyes/skin (jaundice), severe dark urine, persistent severe vomiting, or right upper abdominal pain.
