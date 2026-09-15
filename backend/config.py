@@ -1,5 +1,5 @@
 """
-Configuration file for Bone Cancer Detection API
+Configuration file for Tuberculosis (TB) AI Detection API
 Centralizes all configuration parameters for easy management
 """
 import os

@@ -2,7 +2,7 @@ import sys
 import os
 import traceback
 
-backend_dir = r"c:\Users\sp711\Downloads\TB care\backend"
+backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_dir)
 os.chdir(backend_dir)
 

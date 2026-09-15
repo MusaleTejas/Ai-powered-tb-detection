@@ -10,6 +10,13 @@ except ImportError:
     pass
 
 app = Flask(__name__)
+# Security: Enforce upload size limit (16MB max) to prevent Denial of Service
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp', 'tiff', 'dcm', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 # Enable CORS for all routes and origins
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -111,7 +118,9 @@ def predict():
         file = request.files['image']
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
-        # Save uploaded file temporarily
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'Invalid file format. Please upload a standard image (PNG, JPG, JPEG, DICOM, BMP, TIFF)'}), 400
+        # Save uploaded file temporarily with safe timestamped name
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         temp_filename = f"temp_{timestamp}.jpg"
         temp_path = os.path.join('static/uploads', temp_filename)
@@ -208,9 +217,9 @@ def predict():
 
 
 if __name__ == '__main__':
-    print("🚀 Starting Bone Cancer Detection API...")
-    print("📍 Server starting instantly on port 5000...")
-    print("✅ Server ready! X-ray checker first; multitask used if available.")
+    print("[INIT] Starting Tuberculosis (TB) Detection API...")
+    print("[INIT] Server starting on port 5000...")
+    print("[OK] Server ready! X-ray checker first; multitask used if available.")
     print("🔗 Endpoints:")
     print("   - GET  /health - Check server and model status")
     print("   - POST /predict - Upload image for analysis")

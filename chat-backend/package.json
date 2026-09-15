@@ -1,7 +1,7 @@
 {
-  "name": "chat-backend",
-  "version": "1.0.0",
-  "description": "Node.js Gemini Chat Backend for TB Care",
+  "name": "tb-care-ai-chat-backend",
+  "version": "2.0.0",
+  "description": "Node.js Groq LLaMA-3 Medical AI Chat & Report Backend for TB Care",
   "main": "server.js",
   "type": "module",
   "scripts": {

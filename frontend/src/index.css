@@ -4,17 +4,21 @@
 
 @layer base {
   body {
-    @apply font-classic bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100;
+    @apply font-classic bg-slate-50 text-slate-900 selection:bg-teal-500 selection:text-white;
   }
 }
 
 @layer utilities {
   .glass-effect {
-    @apply bg-white/80 backdrop-blur-lg border border-purple-200/50;
+    @apply bg-white/90 backdrop-blur-md border border-teal-100 shadow-sm;
   }
   
   .glass-effect-dark {
-    @apply bg-purple-900/20 backdrop-blur-lg border border-purple-500/30;
+    @apply bg-slate-900/80 backdrop-blur-md border border-teal-500/20 text-white;
+  }
+
+  .glass-card {
+    @apply bg-white/95 backdrop-blur-lg border border-slate-200/80 shadow-lg hover:shadow-xl transition-all duration-300;
   }
   
   .gradient-border {
@@ -27,22 +31,34 @@
     position: absolute;
     inset: 0;
     padding: 2px;
-    background: linear-gradient(135deg, #a855f7, #7c3aed, #6d28d9);
+    background: linear-gradient(135deg, #0d9488, #06b6d4, #3b82f6);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
   }
   
+  .text-gradient-medical {
+    @apply bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent;
+  }
+
   .text-gradient-purple {
-    @apply bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent;
   }
   
+  .shadow-medical {
+    box-shadow: 0 10px 30px -10px rgba(13, 148, 136, 0.25);
+  }
+
   .shadow-purple {
-    box-shadow: 0 10px 40px -10px rgba(168, 85, 247, 0.3);
+    box-shadow: 0 10px 30px -10px rgba(13, 148, 136, 0.2);
   }
   
+  .shadow-medical-lg {
+    box-shadow: 0 20px 40px -15px rgba(13, 148, 136, 0.35);
+  }
+
   .shadow-purple-lg {
-    box-shadow: 0 20px 60px -15px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 20px 40px -15px rgba(13, 148, 136, 0.35);
   }
   
   .hover-lift {
@@ -50,6 +66,6 @@
   }
   
   .hover-lift:hover {
-    @apply -translate-y-1 shadow-purple-lg;
+    @apply -translate-y-1 shadow-medical-lg;
   }
 }

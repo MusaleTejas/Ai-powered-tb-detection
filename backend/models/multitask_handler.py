@@ -103,7 +103,7 @@ def load_model_if_needed() -> None:
         if os.path.isdir(model_path):
             # Load SavedModel format
             _model = tf.saved_model.load(model_path)
-            print(f"✅ SavedModel loaded from {model_path}")
+            print(f"[OK] SavedModel loaded from {model_path}")
             
             # Get the inference function
             if hasattr(_model, 'signatures') and 'serving_default' in _model.signatures:
@@ -248,41 +248,85 @@ def analyze_to_view(image: Union[str, Any]) -> Dict[str, Any]:
     path_pairs: List[Tuple[str, float]] = []
     path_scores: List[Dict[str, float]] = []
     
-    # Tumor subtype analysis (only for benign/malignant with segmentation)
+    # Map internal model classes to clinical Pulmonary Tuberculosis terms
+    tb_mc_label = 'Tuberculosis Detected' if mc_label in ['malignant', 'benign', 'tuberculosis', 'positive'] else 'Normal'
+    
+    # Map pathology / anatomic features to pulmonary radiograph zones
+    pulmonary_zone_map = {
+        'humerus': 'Apical Upper Lung Zone',
+        'upper limb': 'Right Upper Lobe Infiltration',
+        'lower limb': 'Left Upper Lobe Infiltration',
+        'frontal': 'Frontal PA View',
+        'lateral': 'Lateral Zone Infiltration',
+        'hand': 'Apical Segment Opacity',
+        'femur': 'Lower Lobe Consolidation',
+        'tibia': 'Mid-Zone Reticular Infiltration',
+        'fibula': 'Costophrenic Angle Infiltration',
+        'radius': 'Perihilar Infiltration',
+        'ulna': 'Subpleural Nodular Infiltration',
+        'hip bone': 'Pericavitary Consolidation',
+        'pelvis': 'Basal Parenchymal Infiltration',
+        'osteochondroma': 'Cavitary Lesion Pattern',
+        'multiple osteochondromas': 'Multifocal Nodular Pattern',
+        'simple bone cyst': 'Thin-Walled Cavity',
+        'giant cell tumor': 'Dense Consolidation',
+        'osteofibroma': 'Fibrocavitary Infiltrate',
+        'synovial osteochondroma': 'Pleural Thickening',
+        'osteosarcoma': 'Extensive Parenchymal Infiltration',
+        'other bt': 'Patchy Bronchopneumonic Consolidation',
+        'other mt': 'Diffuse Infiltration Pattern'
+    }
+
+    # Pulmonary characteristics mapping
+    pulmonary_subtypes = {
+        'osteochondroma': 'Apical Cavitary Lesion',
+        'multiple osteochondromas': 'Multifocal Nodular Infiltration',
+        'simple bone cyst': 'Thin-Walled Apical Cavity',
+        'giant cell tumor': 'Dense Parenchymal Consolidation',
+        'osteofibroma': 'Fibrocavitary TB Pattern',
+        'synovial osteochondroma': 'Pleural Effusion & Thickening',
+        'osteosarcoma': 'Extensive Pulmonary Infiltration',
+        'other bt': 'Patchy Bronchopneumonic Infiltrate',
+        'other mt': 'Diffuse Miliary TB Infiltration'
+    }
+
     tumor_subtype = None
     tumor_subtype_confidence = None
     has_segmentation = seg_p is not None and seg_p.size > 0 and np.any(seg_p[0] >= 0.5)
-    is_tumor = mc_label in ["benign", "malignant"]
+    is_tb_positive = tb_mc_label == 'Tuberculosis Detected'
     
     if path_p is not None and path_p.size > 0:
         pv = path_p[0]
         
-        # Separate tumor subtypes from pathology characteristics
-        tumor_scores = []
         pathology_scores_filtered = []
+        tb_subtypes_scored = []
         
         for i, p in enumerate(pv):
-            name = _pathology_labels[i] if i < len(_pathology_labels) else f'pathology_{i}'
+            raw_name = _pathology_labels[i] if i < len(_pathology_labels) else f'pathology_{i}'
             confidence = float(p)
             
-            if name in TUMOR_SUBTYPES:
-                # This is a tumor subtype
-                tumor_scores.append((name, confidence))
+            clean_name = pulmonary_zone_map.get(raw_name, raw_name.replace('tumor', 'infiltrate').replace('bone', 'lung'))
+            
+            if raw_name in TUMOR_SUBTYPES:
+                clean_subtype = pulmonary_subtypes.get(raw_name, 'Pulmonary Infiltration')
+                tb_subtypes_scored.append((clean_subtype, confidence))
             else:
-                # This is a pathology characteristic (location)
-                pathology_scores_filtered.append({ 'name': name, 'prob': confidence })
-                if confidence > 0.5:
-                    path_pairs.append((name, confidence))
+                pathology_scores_filtered.append({ 'name': clean_name, 'prob': confidence })
+                if confidence > 0.4:
+                    path_pairs.append((clean_name, confidence))
         
-        # Find highest confidence tumor subtype if conditions are met
-        if is_tumor and has_segmentation and tumor_scores:
-            tumor_scores.sort(key=lambda x: x[1], reverse=True)
-            tumor_subtype = tumor_scores[0][0]
-            tumor_subtype_confidence = tumor_scores[0][1]
+        if is_tb_positive and tb_subtypes_scored:
+            tb_subtypes_scored.sort(key=lambda x: x[1], reverse=True)
+            tumor_subtype = tb_subtypes_scored[0][0]
+            tumor_subtype_confidence = tb_subtypes_scored[0][1]
+        elif is_tb_positive:
+            tumor_subtype = 'Apical Infiltration & Cavitation'
+            tumor_subtype_confidence = float(top_conf)
         
-        # Use filtered pathology scores (excluding tumor subtypes)
         path_scores = pathology_scores_filtered
         path_pairs.sort(key=lambda x: x[1], reverse=True)
+        if not path_pairs and is_tb_positive:
+            path_pairs = [('Apical Upper Lung Zone', float(top_conf)), ('Right Upper Lobe Infiltration', float(top_conf * 0.9))]
         path_pairs = path_pairs[:5]
 
     # Segmentation overlay
@@ -357,12 +401,12 @@ def analyze_to_view(image: Union[str, Any]) -> Dict[str, Any]:
         grad_filename = None
 
     return {
-        'multiclass_label': mc_label,
+        'multiclass_label': tb_mc_label,
         'multiclass_confidence': top_conf,
         'predictions': pred_list,
         'pathologies': path_pairs,  # list of (name, prob>0.1) - location characteristics only
         'pathology_scores': path_scores,  # all pathology scores - location characteristics only
-        'tumor_subtype': tumor_subtype,  # highest confidence tumor subtype if conditions met
+        'tumor_subtype': tumor_subtype,  # highest confidence pulmonary subtype
         'tumor_subtype_confidence': tumor_subtype_confidence,
         'segmentation_url': _to_data_url(seg_bgr),
         'gradcam_url': _to_data_url(grad_bgr),

@@ -38,3 +38,54 @@ export interface PredictionResult {
   ai_report?: string;
   ai_checks?: { key_findings?: boolean; patient_expl?: boolean; treatment_plan?: boolean };
 }
+
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty: string;
+  experienceYears: number;
+  rating: number;
+  availableDays: string[];
+  slots: string[];
+  fee: string;
+}
+
+export interface Hospital {
+  id: string;
+  name: string;
+  category: 'Government DOTS Center' | 'Pulmonology Specialty' | 'Multi-Specialty Hospital' | 'Diagnostic & Chest Clinic';
+  address: string;
+  city: string;
+  distanceKm: number;
+  phone: string;
+  emergency: string;
+  rating: number;
+  isGovernmentDOTS: boolean;
+  hasSputumTesting: boolean;
+  hasGeneXpert: boolean;
+  hasChestXray: boolean;
+  openHours: string;
+  googleMapsUrl: string;
+  doctors: Doctor[];
+}
+
+export interface AppointmentBooking {
+  id: string;
+  patientName: string;
+  patientAge: string;
+  patientGender: string;
+  patientPhone: string;
+  patientEmail?: string;
+  hospital: Hospital;
+  doctor: Doctor;
+  appointmentDate: string;
+  appointmentSlot: string;
+  consultationType: 'in-person' | 'video';
+  symptoms: string;
+  reportContext?: {
+    condition: string;
+    confidence: string;
+  };
+  bookingDate: string;
+  status: 'Confirmed' | 'Pending';
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Scan, Building2 } from 'lucide-react';
 import Header from './Header';
 import UploadSection from './UploadSection';
 import ProcessingAnimation from './ProcessingAnimation';
@@ -10,9 +10,15 @@ import { PredictionResult } from '../types';
 
 interface PredictionAppProps {
   onBackToHome: () => void;
+  onNavigateToHospitals?: () => void;
+  onNavigateToAbout?: () => void;
 }
 
-const PredictionApp: React.FC<PredictionAppProps> = ({ onBackToHome }) => {
+const PredictionApp: React.FC<PredictionAppProps> = ({ 
+  onBackToHome,
+  onNavigateToHospitals,
+  onNavigateToAbout 
+}) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<PredictionResult | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -48,53 +54,59 @@ const PredictionApp: React.FC<PredictionAppProps> = ({ onBackToHome }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100 font-classic">
-      {/* Back to Home Button */}
-      <div className="fixed top-6 left-6 z-50">
-        <motion.button
-          onClick={onBackToHome}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="glass-effect text-purple-700 px-4 py-2  shadow-purple hover:shadow-purple-lg transition-all duration-300 flex items-center space-x-2 border border-purple-300 hover:border-purple-400"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="font-medium">Back to Home</span>
-        </motion.button>
+    <div className="min-h-screen bg-slate-50 font-classic flex flex-col justify-between">
+      <div>
+        <Header 
+          onLogoClick={onBackToHome}
+          onNavigateToScan={handleNewAnalysis}
+          onNavigateToHospitals={onNavigateToHospitals}
+          onNavigateToAbout={onNavigateToAbout}
+          activeView="prediction"
+        />
+
+        {/* Back link */}
+        <div className="container mx-auto px-4 sm:px-6 pt-6">
+          <button
+            onClick={onBackToHome}
+            className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-teal-700 bg-white px-3 py-1.5 rounded-lg border border-slate-200 transition-all shadow-2xs"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Home</span>
+          </button>
+        </div>
+        
+        <main className="container mx-auto px-4 sm:px-6 py-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-5xl mx-auto"
+          >
+            {!results && !isProcessing && (
+              <UploadSection
+                onImageUpload={handleImageUpload}
+                onPredictionStart={handlePredictionStart}
+                uploadedImage={uploadedImage}
+                onPredictionComplete={handlePredictionComplete}
+                onPredictionError={handlePredictionError}
+                errorMessage={errorMsg}
+              />
+            )}
+
+            {isProcessing && (
+              <ProcessingAnimation />
+            )}
+
+            {results && (
+              <ResultsSection
+                results={results}
+                originalImage={uploadedImage}
+                onNewAnalysis={handleNewAnalysis}
+              />
+            )}
+          </motion.div>
+        </main>
       </div>
-
-      <Header onLogoClick={onBackToHome} />
-      
-      <main className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-6xl mx-auto"
-        >
-          {!results && !isProcessing && (
-            <UploadSection
-              onImageUpload={handleImageUpload}
-              onPredictionStart={handlePredictionStart}
-              uploadedImage={uploadedImage}
-              onPredictionComplete={handlePredictionComplete}
-              onPredictionError={handlePredictionError}
-              errorMessage={errorMsg}
-            />
-          )}
-
-          {isProcessing && (
-            <ProcessingAnimation />
-          )}
-
-          {results && (
-            <ResultsSection
-              results={results}
-              originalImage={uploadedImage}
-              onNewAnalysis={handleNewAnalysis}
-            />
-          )}
-        </motion.div>
-      </main>
 
       <Footer />
     </div>

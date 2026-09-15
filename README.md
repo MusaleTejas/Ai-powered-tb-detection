@@ -1,417 +1,213 @@
-   # Tuberculosis Detection 
+﻿# 🩺 TB Care AI — AI-Powered Tuberculosis Detection & Clinical Care Platform
 
-AI-powered tuberculosis detection and analysis system using deep learning. This application provides instant X-ray analysis with comprehensive medical reports, TB classification, and visualization.
-https://tb-care-ai-based-tuberculosis-detec.vercel.app/
-## 📋 Prerequisites
+[![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](https://opensource.org/licenses/MIT)
+[![Python: 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![React: 18+](https://img.shields.io/badge/React-18%2B-61DAFB.svg)](https://react.dev/)
+[![Tailwind CSS: 3.4](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
+[![Groq AI: LLaMA 3](https://img.shields.io/badge/Groq%20AI-LLaMA%203-orange.svg)](https://groq.com/)
+[![Fast Inference: Sub-second](https://img.shields.io/badge/Inference-%3C%203s-emerald.svg)]()
 
-Before setting up the project, ensure you have the following installed:
-
-- **Python 3.8 or higher** - [Download Python](https://www.python.org/downloads/)
-- **Node.js 16 or higher** - [Download Node.js](https://nodejs.org/)
-- **npm** (comes with Node.js)
-- **Git** (optional, for cloning)
+> **An intelligent, explainable, and patient-centered diagnostic platform engineered to accelerate pulmonary Tuberculosis (TB) screening, generate structured clinical reports, and connect patients with certified Government DOTS centers.**
 
 ---
 
-## 🚀 Project Setup
+## 🌟 Overview & Mission
 
-### 1. Clone or Extract the Project
+Tuberculosis remains one of the world's leading infectious disease killers. Early and accessible detection is crucial to breaking the chain of transmission. 
 
-```bash
-# If using Git
-git clone <repository-url>
-cd "Tuberculosis X"
-
-# Or simply extract the ZIP file and navigate to the directory
-cd "Tuberculosis X"
-```
+**TB Care AI** bridges the gap between deep learning radiograph screening and actionable patient care. Built with convolutional neural networks (EfficientNet), explainable AI (Grad-CAM), and high-throughput LLM synthesis (Groq LLaMA-3), the platform offers:
+- **Instant Chest Radiograph Screening**: Automated detection of pulmonary opacities, infiltrates, and cavitations.
+- **Visual Explainability**: Side-by-side comparison of raw X-rays, lesion segmentation overlays, and Grad-CAM attention heatmaps.
+- **Doctor-Ready Clinical Summaries**: Narrative reports structured according to **CDC** and **The Radiology Assistant** radiological criteria.
+- **Direct Care Connection**: Geolocation-enabled locator for **Government DOTS Centers** (providing 100% free treatment) and interactive doctor appointment scheduling.
 
 ---
 
-## 🔧 Backend Setup
+## 🚀 Key Features
 
-### Step 1: Navigate to Backend Directory
+### 1. 🔬 Deep Learning Pulmonary Screening
+- **Multi-Task Neural Network**: Classifies chest radiographs into Tuberculosis vs. Normal with high diagnostic confidence.
+- **Image Preprocessing & Validation**: Automated validation filter ensuring uploaded images are genuine chest radiographs (PA/AP views).
 
-```bash
-cd backend
-```
+### 2. 🌡️ Visual Explainability & Grad-CAM
+- **Grad-CAM Activation Heatmaps**: Highlights the exact focal regions (upper lobe apical segments, nodular opacities) influencing neural network classification.
+- **Segmentation Mask Overlay**: Visualizes suspected lesion boundaries directly on the radiograph.
 
-### Step 2: Create Python Virtual Environment
+### 3. 📝 Structured Clinical AI Reports (Groq LLaMA-3)
+- **Clinical Breakdown**: Covers Patient Condition, Radiological Signatures, Red-Flag Symptoms, and Household Precautions.
+- **Government DOTS Table**: Explains the 5-step National TB Elimination workflow (*Screening, Free Regimen 2HRZE+4HRE, Directly Observed Therapy, Monitoring, Contact Tracing*).
+- **Downloadable PDF Pass**: Generate and print official diagnosis summaries with 1-click.
 
-**Windows:**
-```powershell
-python -m venv venv
-```
+### 4. 🏥 Nearby Hospital & DOTS Center Locator
+- **GPS-Assisted Matching**: Instant proximity calculation for certified TB treatment centers and pulmonology clinics.
+- **Doctor Appointment Booking**: Select specialist physicians, pick preferred time slots (In-person or Video call), attach AI scan results, and receive an instant booking token.
 
-**macOS/Linux:**
-```bash
-python3 -m venv venv
-```
-
-### Step 3: Activate Virtual Environment
-
-**Windows (PowerShell):**
-```powershell
-.\venv\Scripts\activate
-```
-
-**Windows (Command Prompt):**
-```cmd
-venv\Scripts\activate.bat
-```
-
-**macOS/Linux:**
-```bash
-source venv/bin/activate
-```
-
-> **Note**: You should see `(venv)` prefix in your terminal when activated.
-
-### Step 4: Install Python Dependencies
-
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-> **⚠️ Important**: This may take 5-10 minutes as it installs TensorFlow, PyTorch, and other ML libraries.
-
-### Step 5: Verify Backend Setup
-
-Check that all dependencies are installed:
-```bash
-pip list
-```
-
-You should see packages like:
-- Flask
-- tensorflow
-- torch
-- transformers
-- Pillow
-- opencv-python
+### 5. 💬 Conversational Medical AI Assistant
+- **24x7 Respiratory Guidance**: Ask natural-language questions regarding symptoms, medication compliance, transmission prevention, and diagnostic workups (CBNAAT / GeneXpert).
 
 ---
 
-## 🎨 Frontend Setup
+## 🏗️ System Architecture
 
-### Step 1: Navigate to Frontend Directory
-
-```bash
-# From project root
-cd frontend
-
-# Or from backend directory
-cd ../frontend
 ```
-
-### Step 2: Install Node Dependencies
-
-```bash
-npm install
-```
-
-> **⚠️ Important**: This may take 3-5 minutes to download all packages.
-
-### Step 3: Verify Frontend Setup
-
-Check that `node_modules` folder was created:
-```bash
-# Windows
-dir node_modules
-
-# macOS/Linux
-ls node_modules
+                               ┌─────────────────────────┐
+                               │  Frontend (React + Vite) │
+                               │  Tailwind + Framer Motion│
+                               └────────────┬────────────┘
+                                            │
+                    ┌───────────────────────┴───────────────────────┐
+                    │                                               │
+                    ▼                                               ▼
+     ┌─────────────────────────────┐               ┌─────────────────────────────┐
+     │   Flask AI Backend (:5000)  │               │ Node.js Chat Backend (:5001)│
+     ├─────────────────────────────┤               ├─────────────────────────────┤
+     │ • X-Ray Quality Gate        │               │ • Groq LLaMA-3 LLM Engine   │
+     │ • EfficientNet / SavedModel │               │ • Structured Report Synth   │
+     │ • Grad-CAM Heatmap Gen      │               │ • Conversational Chatbot    │
+     │ • Segmentation Overlay      │               │ • Rate Limiting & Security  │
+     └─────────────────────────────┘               └─────────────────────────────┘
 ```
 
 ---
 
-## ▶️ Running the Application
+## 📚 Clinical Guidelines & Medical References
 
-You need to run **both** backend and frontend servers simultaneously.
+This project is built and aligned with international radiological and infectious disease benchmarks:
+- **[The Radiology Assistant: Imaging Findings in TB](https://radiologyassistant.nl/chest/tb/tuberculosis)** — Radiological presentation of primary vs. post-primary TB, apical cavitations, and miliary patterns.
+- **[CDC Tuberculosis Diagnosis Protocols](https://www.cdc.gov/tb/testing/diagnosing-tuberculosis.html)** — Guidelines for molecular testing (GeneXpert / CBNAAT), sputum AFB smear microscopy, and 6-month therapy.
+- **[WHO Global Tuberculosis Programme](https://www.who.int/teams/global-tuberculosis-programme/the-end-tb-strategy)** — The WHO End TB Strategy.
 
-### Terminal 1: Start Backend Server
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons, React-Markdown, React-to-Print.
+- **AI / Deep Learning**: TensorFlow 2.x, Keras, OpenCV (cv2), NumPy, Pillow.
+- **LLM Synthesis**: Groq SDK (`openai/gpt-oss-120b` / LLaMA 3), Node.js, Express, Rate-Limiting.
+- **Backend API**: Python Flask, Flask-CORS.
+
+---
+
+## 📦 Local Installation & Setup
+
+### Prerequisites
+- **Node.js**: v18.0 or higher
+- **Python**: v3.8 or higher
+- **Git**: Installed on your system
+
+---
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/MusaleTejas/Ai-powered-tb-detection.git
+cd Ai-powered-tb-detection
+```
+
+---
+
+### Step 2: Set Up Flask AI Backend (Port 5000)
 
 ```bash
 # Navigate to backend directory
 cd backend
 
-# Activate virtual environment (if not already activated)
+# Create and activate virtual environment
 # Windows:
+python -m venv venv
 .\venv\Scripts\activate
 
-# macOS/Linux:
-source venv/bin/activate
+# Linux / macOS:
+# python3 -m venv venv
+# source venv/bin/activate
 
-# Start the Flask server
+# Install dependencies
+pip install -r requirements.txt
+pip install opencv-python
+
+# Run the Flask Server
 python app.py
 ```
+> Server runs on `http://127.0.0.1:5000`
 
-**Expected Output:**
-```
-🚀 Starting Tuberculosis Detection API...
-📍 Server starting instantly on port 5000...
-✅ Server ready! X-ray checker first; multitask used if available.
-🔗 Endpoints:
-   - GET  /health - Check server and model status
-   - POST /predict - Upload image for analysis
-   - POST /report - Generate LLaMA text report
-   - POST /cleanup_files - Clean temporary files
-```
+---
 
-Backend will be running at: **http://localhost:5000**
-
-### Terminal 2: Start Frontend Server
-
-**Open a NEW terminal window/tab**
+### Step 3: Set Up Groq Chat & Report Backend (Port 5001)
 
 ```bash
-# Navigate to frontend directory
+# Open a new terminal and navigate to chat-backend
+cd chat-backend
+
+# Install dependencies
+npm install
+
+# Configure environment variables (create .env)
+# PORT=5001
+# GROQ_API_KEY=your_groq_api_key_here
+
+# Start the Node.js Server
+npm start
+```
+> Server runs on `http://127.0.0.1:5001`
+
+---
+
+### Step 4: Set Up & Launch Frontend (Port 5173)
+
+```bash
+# Open a new terminal and navigate to frontend
 cd frontend
+
+# Install dependencies
+npm install
 
 # Start the Vite development server
 npm run dev
 ```
-
-**Expected Output:**
-```
-VITE v5.4.2  ready in XXX ms
-
-➜  Local:   http://localhost:5173/
-➜  Network: use --host to expose
-```
-
-Frontend will be running at: **http://localhost:5173**
+> Open your browser at `http://localhost:5173`
 
 ---
 
-## 🌐 Accessing the Application
+## 📡 API Endpoints Reference
 
-1. Open your web browser
-2. Navigate to: **http://localhost:5173**
-3. You should see the purple-themed landing page
-4. Click "Start Analysis" to begin using the application
+### AI Model Backend (`http://127.0.0.1:5000`)
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Healthcheck and model readiness status |
+| `POST` | `/predict` | Ingests chest X-ray image (`multipart/form-data`) and returns classification, confidence, segmentation mask, and Grad-CAM heatmap data URLs |
+| `POST` | `/cleanup_files` | Cleans up temporary image files from storage |
 
----
-
-## 📁 Project Structure
-
-```
-Tuberculosis X/
-├── backend/
-│   ├── app.py                 # Main Flask application
-│   ├── config.py              # Configuration settings
-│   ├── requirements.txt       # Python dependencies
-│   ├── models/                # ML model handlers
-│   │   ├── xray_checker.py
-│   │   ├── multitask_handler.py
-│   │   └── llama_report_handler.py
-│   ├── static/                # Static files (generated)
-│   │   ├── uploads/           # Uploaded images
-│   │   └── heatmaps/          # Generated visualizations
-│   └── venv/                  # Python virtual environment (create this)
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/        # React components
-│   │   │   ├── LandingPage.tsx
-│   │   │   ├── Header.tsx
-│   │   │   ├── PredictionApp.tsx
-│   │   │   ├── UploadSection.tsx
-│   │   │   ├── ResultsSection.tsx
-│   │   │   ├── ProcessingAnimation.tsx
-│   │   │   └── Footer.tsx
-│   │   ├── types/             # TypeScript types
-│   │   ├── App.tsx            # Main app component
-│   │   ├── index.css          # Global styles
-│   │   └── main.tsx           # Entry point
-│   ├── public/                # Public assets
-│   ├── package.json           # Node dependencies
-│   ├── tailwind.config.js     # Tailwind configuration
-│   ├── vite.config.ts         # Vite configuration
-│   └── node_modules/          # Node packages (create this)
-│
-└── README.md                  # This file
-```
+### Chat & Report Backend (`http://127.0.0.1:5001`)
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/report` | Synthesizes a full CDC-aligned clinical report with DOTS table |
+| `POST` | `/chat` | Conversational medical AI assistant handling user queries |
 
 ---
 
-## 🛠️ Troubleshooting
+## 👨‍💻 Author & Developer
 
-### Backend Issues
+**Tejas Musale**  
+*Machine Learning & Full-Stack Developer*
 
-**Problem**: `ModuleNotFoundError: No module named 'flask'`
-- **Solution**: Make sure virtual environment is activated and run `pip install -r requirements.txt`
-
-**Problem**: Port 5000 already in use
-- **Solution**: Change port in `app.py` (last line): `app.run(debug=True, port=5001, use_reloader=False)`
-
-**Problem**: TensorFlow installation fails
-- **Solution**: Try installing with specific version: `pip install tensorflow==2.15.0`
-
-### Frontend Issues
-
-**Problem**: `npm: command not found`
-- **Solution**: Install Node.js from [nodejs.org](https://nodejs.org/)
-
-**Problem**: Port 5173 already in use
-- **Solution**: Kill the process or Vite will automatically use next available port
-
-**Problem**: `Cannot find module` errors
-- **Solution**: Delete `node_modules` and `package-lock.json`, then run `npm install` again
-
-### General Issues
-
-**Problem**: CORS errors in browser console
-- **Solution**: Ensure backend is running on port 5000 and frontend on 5173
-
-**Problem**: Images not uploading
-- **Solution**: Check that `static/uploads` and `static/heatmaps` directories exist in backend
-
----
-
-## 📦 Dependencies
-
-### Backend (Python)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Flask | Latest | Web framework |
-| Flask-CORS | Latest | Cross-origin requests |
-| TensorFlow | 2.x | Deep learning framework |
-| PyTorch | Latest | ML framework |
-| torchxrayvision | Latest | X-ray validation |
-| Pillow | Latest | Image processing |
-| opencv-python | Latest | Computer vision |
-| transformers | Latest | LLaMA model |
-| numpy | Latest | Numerical computing |
-
-### Frontend (Node.js)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| React | 18.3 | UI framework |
-| TypeScript | 5.5 | Type safety |
-| Vite | 5.4 | Build tool |
-| Tailwind CSS | 3.4 | Styling |
-| Framer Motion | 12.x | Animations |
-| Axios | 1.11 | HTTP requests |
-| Lucide React | Latest | Icons |
-
----
-
-## 🎯 Usage Guide
-
-### 1. Upload X-Ray Image
-- Click "Start Analysis" on landing page
-- Drag & drop or browse for X-ray image
-- Supported formats: JPG, PNG, JPEG
-
-### 2. Analyze
-- Click "Analyze Image" button
-- Wait for AI processing (10-30 seconds)
-- X-ray validation happens automatically
-
-### 3. View Results
-- **Classification**: Benign/Malignant/Normal
-- **TB Type**: Specific TB subtype
-- **Pathology**: Detected abnormalities
-- **Visualizations**: Heatmaps and overlays
-- **AI Report**: Detailed text analysis (if LLaMA available)
-
-### 4. New Analysis
-- Click "New Scan" to analyze another image
-
----
-
-## 🔒 API Endpoints
-
-### `GET /health`
-Check server and model status
-
-### `POST /predict`
-Upload image for analysis
-- **Input**: Multipart form with `image` file
-- **Output**: JSON with predictions and visualizations
-
-### `POST /report`
-Generate LLaMA text report
-- **Input**: JSON with prediction data
-- **Output**: JSON with detailed report text
-
-### `POST /cleanup_files`
-Clean temporary files
-- **Output**: JSON with deletion statistics
-
----
-
-## 🎨 Theme & Design
-
-- **Color Scheme**: Purple/Violet gradients
-- **Style**: Modern, glassmorphism effects
-- **Layout**: Square corners, clean lines
-- **Responsive**: Works on desktop and mobile
-
----
-
-## 📝 Notes
-
-- **First Run**: Backend may take 1-2 minutes to load ML models on first startup
-- **GPU**: TensorFlow will use GPU if available (CUDA-enabled)
-- **Memory**: Requires ~4GB RAM minimum, 8GB recommended
-- **Models**: ML models are loaded on-demand to save memory
-- **Storage**: Generated files are stored in `static/` directories
+- 🐙 **GitHub**: [@MusaleTejas](https://github.com/MusaleTejas)
+- 💼 **LinkedIn**: [in/tejas-musale](https://www.linkedin.com/in/tejas-musale)
+- ✉️ **Email**: [tejasmusale830@gmail.com](mailto:tejasmusale830@gmail.com)
 
 ---
 
 ## 🤝 Contributing
 
-This is a medical AI project. When contributing:
-1. Test thoroughly with various X-ray images
-2. Maintain code quality and documentation
-3. Follow existing code style
-4. Update README if adding features
+Contributions, issues, and feature requests are welcome!  
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and development workflow.
+
+---
+
+## ⚠️ Medical Disclaimer
+
+*This application is an artificial intelligence research and clinical screening assistance tool. It is designed to assist healthcare professionals and provide informational guidance. It does not replace professional medical diagnosis, clinical judgement, or laboratory sputum testing (GeneXpert/AFB). Always consult a licensed physician or visit a certified DOTS center for diagnostic confirmation and prescription.*
 
 ---
 
 ## 📄 License
 
-This project is for educational and research purposes.
-
----
-
-## 👨‍💻 Support
-
-If you encounter issues:
-1. Check the Troubleshooting section above
-2. Verify all dependencies are installed correctly
-3. Ensure both servers are running
-4. Check browser console for errors
-5. Check terminal output for backend errors
-
----
-
-## 🚀 Quick Start Summary
-
-```bash
-# Backend Setup
-cd backend
-python -m venv venv
-.\venv\Scripts\activate          # Windows
-source venv/bin/activate         # macOS/Linux
-pip install -r requirements.txt
-python app.py
-
-# Frontend Setup (New Terminal)
-cd frontend
-npm install
-npm run dev
-
-# Access: http://localhost:5173
-```
-
----
-
-**Built with ❤️ for fighting Tuberculosis**
-
-*AI-Powered Tuberculosis Detection System*
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
